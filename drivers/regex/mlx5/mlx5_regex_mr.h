@@ -66,8 +66,8 @@ struct mlx5_mr_ctrl {
 
 LIST_HEAD(mlx5_mr_list, mlx5_mr);
 
-int mlx5_mr_btree_init(struct mlx5_mr_btree *bt, int n, int socket);
-void mlx5_mr_btree_free(struct mlx5_mr_btree *bt);
+int mlx5_mr_btree_init2(struct mlx5_mr_btree *bt, int n, int socket);
+void mlx5_mr_btree_free2(struct mlx5_mr_btree *bt);
 
 uint32_t mlx5_regex_mr_addr2mr_bh(struct rte_regex_dev *dev,
 			    struct mlx5_mr_ctrl *mr_ctrl, uintptr_t addr);

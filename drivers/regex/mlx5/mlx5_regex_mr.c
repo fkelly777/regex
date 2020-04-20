@@ -184,7 +184,7 @@ mr_btree_insert(struct mlx5_mr_btree *bt, struct mlx5_mr_cache *entry)
  *   0 on success, a negative errno value otherwise and rte_errno is set.
  */
 int
-mlx5_mr_btree_init(struct mlx5_mr_btree *bt, int n, int socket)
+mlx5_mr_btree_init2(struct mlx5_mr_btree *bt, int n, int socket)
 {
 	if (bt == NULL) {
 		rte_errno = EINVAL;
@@ -218,7 +218,7 @@ mlx5_mr_btree_init(struct mlx5_mr_btree *bt, int n, int socket)
  *   Pointer to B-tree structure.
  */
 void
-mlx5_mr_btree_free(struct mlx5_mr_btree *bt)
+mlx5_mr_btree_free2(struct mlx5_mr_btree *bt)
 {
 	if (bt == NULL)
 		return;
@@ -838,7 +838,7 @@ mlx5_regex_mr_release(struct rte_regex_dev *dev)
 	}
 	LIST_INIT(&priv->mr.mr_list);
 	/* Free global cache. */
-	mlx5_mr_btree_free(&priv->mr.cache);
+	mlx5_mr_btree_free2(&priv->mr.cache);
 	rte_rwlock_write_unlock(&priv->mr.rwlock);
 	/* Free all remaining MRs. */
 	mlx5_mr_garbage_collect(priv);

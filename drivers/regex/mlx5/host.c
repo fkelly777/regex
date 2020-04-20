@@ -64,8 +64,8 @@
 #include <sys/stat.h>
 
 
-#include "rxp-csrs.h"
-#include "rxp-api.h"
+#include "rxp-csrs-int.h"
+#include "rxp-api-int.h"
 #include "host.h" //"mlx5_regex.h" included here
 
 /* The maximum size of any RXP rules set */

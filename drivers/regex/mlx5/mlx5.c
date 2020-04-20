@@ -19,8 +19,8 @@
 #include "mlx5.h"
 #include "mlx5_regex.h"
 #include "mlx5_regex_utils.h"
-#include "rxp-csrs.h"
-#include "rxp-api.h"
+#include "rxp-csrs-int.h"
+#include "rxp-api-int.h"
 
 static TAILQ_HEAD(mlx5_regex_privs, mlx5_regex_priv) priv_list =
 					      TAILQ_HEAD_INITIALIZER(priv_list);
@@ -240,7 +240,7 @@ mlx5_regex_dev_configure(struct rte_regex_dev *dev __rte_unused,
 	}
 	priv->nb_queues = cfg->nb_queue_pairs;
 	for (i = 0; i < priv->nb_queues; i++) {
-		priv->queues[i].handle = rxp_open(0, priv->ctx);
+		priv->queues[i].handle = rxp_open_int(0, priv->ctx);
 		if (priv->queues[i].handle < 0) {
 			DRV_LOG(ERR, "can't open a queue");
 			rte_errno = ENOMEM;
@@ -258,7 +258,7 @@ mlx5_regex_dev_configure(struct rte_regex_dev *dev __rte_unused,
 	return 0;	
 error:
 	for (i--; i >= 0; i--) {
-		rxp_close(priv->queues[i].handle);
+		rxp_close_int(priv->queues[i].handle);
 		rte_free(priv->queues[i].resp_ctx.buf);
 	} 
 						
@@ -268,7 +268,7 @@ error:
 static int mlx5_regex_dev_rules_db_import(struct rte_regex_dev *dev, const char *rule_db_file) {
 	struct mlx5_regex_priv *priv = (struct mlx5_regex_priv *)dev;
 	printf("mlx5_regex_dev_rules_db_import\n");
-	if (rxp_program_rules(0, rule_db_file, false, priv->ctx) < 0) {
+	if (rxp_program_rules_int(0, rule_db_file, false, priv->ctx) < 0) {
 		    DRV_LOG(ERR, "Error: rxp_program_rules() failed");
         	exit(-1);
     	}
@@ -283,7 +283,7 @@ mlx5_regex_dev_stop(struct rte_regex_dev *dev __rte_unused) {
 	int i;
 
 	for (i = 0; i < priv->nb_queues; i++) {
-		rxp_close(priv->queues[i].handle);
+		rxp_close_int(priv->queues[i].handle);
 	}
 	return 0;
 }

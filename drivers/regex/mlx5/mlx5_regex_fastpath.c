@@ -19,8 +19,8 @@
 #include "mlx5.h"
 #include "mlx5_regex.h"
 #include "mlx5_regex_utils.h"
-#include "rxp-csrs.h"
-#include "rxp-api.h"
+#include "rxp-csrs-int.h"
+#include "rxp-api-int.h"
 
 /**
  * DPDK callback for enqueue.
@@ -54,7 +54,7 @@ mlx5_regex_dev_enqueue(struct rte_regex_dev *dev, uint16_t qp_id,
 		if ((queue->pi - queue->ci) >= MLX5_REGEX_MAX_JOBS)
 			return sent;
 		op = ops[i];
-		ret = rxp_submit_job(queue->handle,
+		ret = rxp_submit_job_int(queue->handle,
 			       queue->pi % MLX5_REGEX_MAX_JOBS,
 			       (*op->bufs)[0]->buf_addr,
 			       (*op->bufs)[0]->buf_size,
@@ -107,7 +107,7 @@ mlx5_regex_dev_dequeue(struct rte_regex_dev *dev, uint16_t qp_id,
 	int offset;
 
 
-	rxp_queue_status(queue->handle, &rx_ready, &tx_ready); // resp_ready = true
+	rxp_queue_status_int(queue->handle, &rx_ready, &tx_ready); // resp_ready = true
 	if (!rx_ready) {
 		printf("should exit\n");
 		return 0;
@@ -120,12 +120,12 @@ mlx5_regex_dev_dequeue(struct rte_regex_dev *dev, uint16_t qp_id,
 		}
 		op = ops[i];
 		if (cnt <= 0) {	
-			cnt = rxp_read_response_batch(queue->handle,
+			cnt = rxp_read_response_batch_int(queue->handle,
 						      &queue->resp_ctx); //resp resdy = false
 			if (cnt == 0)
 				return rec;
 		}
-		res = rxp_next_response(&queue->resp_ctx);
+		res = rxp_next_response_int(&queue->resp_ctx);
 		cnt--;
 		if (res == NULL)
 			continue;

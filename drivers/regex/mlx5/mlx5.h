@@ -5,7 +5,7 @@
 #include <rte_rwlock.h>
 
 #include "mlx5_regex_mr.h"
-#include "rxp-api.h"
+#include "rxp-api-int.h"
 
 #define MLX5_REGEX_MAX_QUEUES 32
 

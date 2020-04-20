@@ -54,8 +54,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "rxp-api.h"
-#include "rxp-csrs.h"
+#include "rxp-api-int.h"
+#include "rxp-csrs-int.h"
 #include "host.h"
 
 static bool rxp_init_status = false;
@@ -63,7 +63,7 @@ static bool rxp_prog_status = false;
 struct rxp_queue queue[RXP_NUM_QUEUES];
 
 __attribute__ ((visibility ("default")))
-int rxp_queue_status(int rxp_handle, bool *rx_ready, bool *tx_ready)
+int rxp_queue_status_int(int rxp_handle, bool *rx_ready, bool *tx_ready)
 {
     int ret = 1;
 
@@ -80,7 +80,7 @@ int rxp_queue_status(int rxp_handle, bool *rx_ready, bool *tx_ready)
 }
 
 __attribute__ ((visibility ("default")))
-void rxp_job_batch_free(struct rxp_job_batch *ctx)
+void rxp_job_batch_free_int(struct rxp_job_batch *ctx)
 {
     if (ctx)
     {
@@ -89,7 +89,7 @@ void rxp_job_batch_free(struct rxp_job_batch *ctx)
 }
 
 __attribute__ ((visibility ("default")))
-struct rxp_job_batch *rxp_job_batch_alloc(size_t max_jobs,
+struct rxp_job_batch *rxp_job_batch_alloc_int(size_t max_jobs,
                                           size_t bytes_threshold)
 {
     struct rxp_job_batch *ctx = NULL;
@@ -109,7 +109,7 @@ struct rxp_job_batch *rxp_job_batch_alloc(size_t max_jobs,
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_dispatch_jobs(int rxp_handle, struct rxp_job_batch *ctx)
+int rxp_dispatch_jobs_int(int rxp_handle, struct rxp_job_batch *ctx)
 {
     unsigned int i, last;
     int written, towrite;
@@ -185,7 +185,7 @@ int rxp_dispatch_jobs(int rxp_handle, struct rxp_job_batch *ctx)
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_scan_job(int rxp_handle, struct rxp_job_batch *ctx, uint32_t jobid,
+int rxp_scan_job_int(int rxp_handle, struct rxp_job_batch *ctx, uint32_t jobid,
     const uint8_t *buf, uint16_t len, uint16_t subset1, uint16_t subset2,
     uint16_t subset3, uint16_t subset4, bool enable_hpm, bool enable_anymatch)
 {
@@ -220,7 +220,7 @@ int rxp_scan_job(int rxp_handle, struct rxp_job_batch *ctx, uint32_t jobid,
             (ctx->bytes_threshold && ctx->bytes_total >= ctx->bytes_threshold))
     {
 	printf("ctx->count %ld\n", ctx->count);
-        ret = rxp_dispatch_jobs(rxp_handle, ctx);
+        ret = rxp_dispatch_jobs_int(rxp_handle, ctx);
         if (ret < 0)
             return ret;
         else if (ret == 0) {
@@ -251,7 +251,7 @@ int rxp_scan_job(int rxp_handle, struct rxp_job_batch *ctx, uint32_t jobid,
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_submit_job(int rxp_handle, uint32_t jobid, const uint8_t *buf,
+int rxp_submit_job_int(int rxp_handle, uint32_t jobid, const uint8_t *buf,
                    uint16_t len, uint16_t subset1, uint16_t subset2,
                    uint16_t subset3, uint16_t subset4, bool enable_hpm,
                    bool enable_anymatch)
@@ -314,7 +314,7 @@ int rxp_submit_job(int rxp_handle, uint32_t jobid, const uint8_t *buf,
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_read_response_batch(int rxp_handle, struct rxp_response_batch *ctx)
+int rxp_read_response_batch_int(int rxp_handle, struct rxp_response_batch *ctx)
 {
     unsigned int num_resps = 0;
     uint32_t num_returned_resp = 0;
@@ -425,7 +425,7 @@ int rxp_read_response_batch(int rxp_handle, struct rxp_response_batch *ctx)
  * and endian swaps all responses.
  */
 __attribute__ ((visibility ("default")))
-struct rxp_response* rxp_next_response(struct rxp_response_batch *ctx)
+struct rxp_response* rxp_next_response_int(struct rxp_response_batch *ctx)
 {
     struct rxp_response *resp;
     if (ctx->next_offset < ctx->buf_used)
@@ -453,7 +453,7 @@ struct rxp_response* rxp_next_response(struct rxp_response_batch *ctx)
  * initialisation call, and both will be closed by last thread/app.
  */
 __attribute__ ((visibility ("default")))
-int rxp_open(unsigned rxp __rte_unused, struct ibv_context *ctx)
+int rxp_open_int(unsigned rxp __rte_unused, struct ibv_context *ctx)
 {
     int ret;
     int rxp_handle = -1;
@@ -483,7 +483,7 @@ int rxp_open(unsigned rxp __rte_unused, struct ibv_context *ctx)
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_close(int rxp_handle)
+int rxp_close_int(int rxp_handle)
 {
     int ret;
     if ((rxp_handle < 0) || ((unsigned int)rxp_handle > RXP_NUM_QUEUES))
@@ -514,7 +514,7 @@ int rxp_close(int rxp_handle)
  * Application to call this function to set the Programming mode of the
  * system.  Note we currently can have "Private" or "Shared" programming modes.
  */
-void rxp_programming_mode_set(enum rxp_program_mode mode)
+void rxp_programming_mode_set_int(enum rxp_program_mode mode)
 {
     mlnx_prog_mode_set(mode);
 }
@@ -638,7 +638,7 @@ static int parse_rof(const char *filename, struct rxp_ctl_rules_pgm **rules)
  * multiple applications attempting to program RXP's!
  */
 __attribute__ ((visibility ("default")))
-int rxp_program_rules(unsigned rxp __rte_unused, const char *rulesfile,
+int rxp_program_rules_int(unsigned rxp __rte_unused, const char *rulesfile,
 		      bool incremental, struct ibv_context *ctx)
 {
     unsigned i;
@@ -826,7 +826,7 @@ int rxp_program_rules(unsigned rxp __rte_unused, const char *rulesfile,
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_read_stats(unsigned rxp __rte_unused, struct rxp_stats *stats)
+int rxp_read_stats_int(unsigned rxp __rte_unused, struct rxp_stats *stats)
 {
     int ret, i = 0;
     uint32_t tmp;
@@ -881,7 +881,7 @@ int rxp_read_stats(unsigned rxp __rte_unused, struct rxp_stats *stats)
     return ret;
 }
 
-static unsigned rxp_count_zeroes(uint8_t val)
+static unsigned rxp_count_zeroes_int(uint8_t val)
 {
     unsigned n = 0;
     val = ~val;
@@ -895,7 +895,7 @@ static unsigned rxp_count_zeroes(uint8_t val)
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_read_perf_stats(unsigned rxp __rte_unused, struct rxp_perf_stats *stats)
+int rxp_read_perf_stats_int(unsigned rxp __rte_unused, struct rxp_perf_stats *stats)
 {
     uint32_t csr_stat = 0;
     int i, ret, j = 0;
@@ -912,9 +912,9 @@ int rxp_read_perf_stats(unsigned rxp __rte_unused, struct rxp_perf_stats *stats)
             return ret;
         }
 
-        stats->cluster[i].jce_idle_id = rxp_count_zeroes(csr_stat & 0xff);
+        stats->cluster[i].jce_idle_id = rxp_count_zeroes_int(csr_stat & 0xff);
         stats->cluster[i].tce_idle_id =
-                                    rxp_count_zeroes((csr_stat >> 8) & 0xff);
+                                    rxp_count_zeroes_int((csr_stat >> 8) & 0xff);
         stats->cluster[i].hit_duty_cycle =
                                         (((csr_stat >> 16) & 0xff) * 100) / 256;
         stats->cluster[i].instruction_duty_cycle =
@@ -963,49 +963,49 @@ int rxp_read_perf_stats(unsigned rxp __rte_unused, struct rxp_perf_stats *stats)
 //TODO: Make HRA Apps manage multiple RXP engine stats...
 //      For now hardcode to RXP engine 0 for all functions below...
 __attribute__ ((visibility ("default")))
-int rxp_read_max_matches(unsigned rxp __rte_unused, uint32_t *max_matches)
+int rxp_read_max_matches_int(unsigned rxp __rte_unused, uint32_t *max_matches)
 {
     return mlnx_csr_read(RXP_CSR_MAX_MATCH, max_matches, 0);
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_set_max_matches(unsigned rxp __rte_unused, uint32_t max_matches)
+int rxp_set_max_matches_int(unsigned rxp __rte_unused, uint32_t max_matches)
 {
     return mlnx_csr_write(&max_matches, RXP_CSR_MAX_MATCH, 0);
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_read_max_prefixes(unsigned rxp __rte_unused, uint32_t *max_prefixes)
+int rxp_read_max_prefixes_int(unsigned rxp __rte_unused, uint32_t *max_prefixes)
 {
     return mlnx_csr_read(RXP_CSR_MAX_PREFIX, max_prefixes, 0);
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_set_max_prefixes(unsigned rxp __rte_unused, uint32_t max_prefixes)
+int rxp_set_max_prefixes_int(unsigned rxp __rte_unused, uint32_t max_prefixes)
 {
     return mlnx_csr_write(&max_prefixes, RXP_CSR_MAX_PREFIX, 0);
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_read_max_latency(unsigned rxp __rte_unused, uint32_t *max_latency)
+int rxp_read_max_latency_int(unsigned rxp __rte_unused, uint32_t *max_latency)
 {
     return mlnx_csr_read(RXP_CSR_MAX_LATENCY, max_latency, 0);
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_set_max_latency(unsigned rxp __rte_unused, uint32_t max_latency)
+int rxp_set_max_latency_int(unsigned rxp __rte_unused, uint32_t max_latency)
 {
     return mlnx_csr_write(&max_latency, RXP_CSR_MAX_LATENCY, 0);
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_read_max_pri_threads(unsigned rxp __rte_unused, uint32_t *max_pri_threads)
+int rxp_read_max_pri_threads_int(unsigned rxp __rte_unused, uint32_t *max_pri_threads)
 {
     return mlnx_csr_read(RXP_CSR_MAX_PRI_THREAD, max_pri_threads, 0);
 }
 
 __attribute__ ((visibility ("default")))
-int rxp_set_max_pri_threads(unsigned rxp __rte_unused, uint32_t max_pri_threads)
+int rxp_set_max_pri_threads_int(unsigned rxp __rte_unused, uint32_t max_pri_threads)
 {
     return mlnx_csr_write(&max_pri_threads, RXP_CSR_MAX_PRI_THREAD, 0);
 }
